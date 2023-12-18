@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include "avlbst.h" // Include your AVLTree implementation here
+#include "avlbst.h" // Included my AVLTree implementation here
 #include <set>
 
 using namespace std;
@@ -14,8 +14,13 @@ struct Student {
 };
 
 //function prototype
+//this function adds key,value pair as classcode,slot number pair into the AVL tree container
 bool scheduleExams(int Index, AVLTree<int, int>& classtree, const std::vector<Student>& students, int total_timeslot, const std::vector<int>& classCodes);
+
+// a function checks whether a slot is valid: this student does not have another exam at the same time
 bool valid_slot(int slot, int which_class, const AVLTree<int, int>& classtree, const std::vector<Student>& students);
+
+// a helper function checks whether an element is inside a vector
 bool isElementInVector(const std::vector<int>& vec, const int& element);
 
 
