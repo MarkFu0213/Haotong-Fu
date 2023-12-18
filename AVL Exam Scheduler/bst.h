@@ -14,7 +14,7 @@
  * The getters for parent/left/right are virtual so
  * that they can be overridden for future kinds of
  * search trees, such as Red Black trees, Splay trees,
- * and AVL trees.
+ * and AVL trees. It will be used for AVL trees.
  */
 template <typename Key, typename Value>
 class Node
@@ -66,8 +66,7 @@ Node<Key, Value>::Node(const Key& key, const Value& value, Node<Key, Value>* par
 
 /**
 * Destructor, which does not need to do anything since the pointers inside of a node
-* are only used as references to existing nodes. The nodes pointed to by parent/left/right
-* are freed within the deleteAll() helper method in the BinarySearchTree.
+* are only used as references to existing nodes.
 */
 template<typename Key, typename Value>
 Node<Key, Value>::~Node()
@@ -245,7 +244,7 @@ protected:
     virtual void printRoot (Node<Key, Value> *r) const;
     virtual void nodeSwap( Node<Key,Value>* n1, Node<Key,Value>* n2);
 
-    // Add helper functions here
+    // helper functions for insert, remove, and clear
     Node<Key, Value>* helper_insert(Node<Key, Value>* the_root, const std::pair<const Key, Value> &keyValuePair);
     Node<Key, Value>* remove_helper(Node<Key, Value>* node, const Key& key);
     bool isBalanced_helper(Node<Key, Value>* n, int& height) const;
@@ -254,7 +253,6 @@ protected:
 
 protected:
     Node<Key, Value>* root_;
-    // You should not need other data members
 };
 
 /*
@@ -495,7 +493,6 @@ void BinarySearchTree<Key, Value>::remove(const Key& key)
 {
     remove_helper(root_, key);
 }
-
 
 
 
@@ -873,17 +870,6 @@ void BinarySearchTree<Key, Value>::nodeSwap( Node<Key,Value>* n1, Node<Key,Value
     }
 
 }
-
-/**
- * Lastly, we are providing you with a print function,
-   BinarySearchTree::printRoot().
-   Just call it with a node to start printing at, e.g:
-   this->printRoot(this->root_) // or any other node pointer
-
-   It will print up to 5 levels of the tree rooted at the passed node,
-   in ASCII graphics format.
-   We hope it will make debugging easier!
-  */
 
 // include print function (in its own file because it's fairly long)
 #include "print_bst.h"
