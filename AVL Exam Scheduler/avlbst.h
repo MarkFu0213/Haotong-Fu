@@ -12,8 +12,7 @@ struct KeyError { };
 
 /**
 * A special kind of node for an AVL tree, which adds the height as a data member, plus
-* other additional helper functions. You do NOT need to implement any functionality or
-* add additional data members or helper functions.
+* other additional helper functions. 
 */
 template <typename Key, typename Value>
 class AVLNode : public Node<Key, Value>
@@ -28,8 +27,7 @@ public:
     void setHeight (int height);
 
     // Getters for parent, left, and right. These need to be redefined since they
-    // return pointers to AVLNodes - not plain Nodes. See the Node class in bst.h
-    // for more information.
+    // return pointers to AVLNodes - not plain Nodes. 
     virtual AVLNode<Key, Value>* getParent() const override;
     virtual AVLNode<Key, Value>* getLeft() const override;
     virtual AVLNode<Key, Value>* getRight() const override;
@@ -128,9 +126,11 @@ public:
 protected:
     virtual void nodeSwap( AVLNode<Key,Value>* n1, AVLNode<Key,Value>* n2);
     
-    // Add helper functions here
+    // helper functions for insert and remove
     AVLNode<Key, Value>* helper_insert_avl(AVLNode<Key, Value>* node, const std::pair<const Key, Value> &keyValuePair);
     AVLNode<Key, Value>* remove_helper_avl(AVLNode<Key, Value>* node, const Key& key);
+
+    // helper for rotations and height updates
     void left_rotation(AVLNode<Key,Value>* z);
     void right_rotation(AVLNode<Key,Value>* z);
     void left_right_rotation(AVLNode<Key,Value>* z);
@@ -199,11 +199,6 @@ AVLNode<Key, Value>* AVLTree<Key, Value>::helper_insert_avl(AVLNode<Key, Value>*
 }
 
 
-
-
-
-  
-
 template<class Key, class Value>
 void AVLTree<Key, Value>::remove(const Key& key) {
     // Call the removal helper to remove the node and get the node to start rebalancing
@@ -229,7 +224,7 @@ void AVLTree<Key, Value>::remove(const Key& key) {
     }
 }
 
-//provided in the starter code
+//nodeswap 
 template<class Key, class Value>
 void AVLTree<Key, Value>::nodeSwap( AVLNode<Key,Value>* n1, AVLNode<Key,Value>* n2)
 {
