@@ -2,7 +2,7 @@
 Haotong Fu (Mark)'s Repository
 Welcome to my github repository!
 
-I currenty have two project:
+These are the two projects I have worked on independently (I am not allowed to share any codes from internships):
 
 1: Chromakey Image Processor
 ▪ Developed an optimized algorithm via C++ to accurately detect and replace greenscreen backgrounds in images, reducing the detection error rate from 12% to 0.2% over 7 rigorous test cases
