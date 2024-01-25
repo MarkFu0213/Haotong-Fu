@@ -6,6 +6,8 @@
 #include "avlbst.h" // Included my AVLTree implementation here
 #include <set>
 
+// This file implements AVL class to build an Exam Scheduler
+
 using namespace std;
 // a student struct to hold everything about this student, including a vector to store all its classes
 struct Student {
