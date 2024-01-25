@@ -5,7 +5,7 @@ import docx
 from docx import Document
 
 
-openai.api_key = "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"
+openai.api_key = "###"
 
 messages = []
 
