@@ -8,7 +8,7 @@
 #define PRINT_BST_H
 
 // BST pretty-print function
-// Version 1.2
+// This file is included for testing
 
 // maximum depth of tree to actually print.
 #define PPBST_MAX_HEIGHT 6
