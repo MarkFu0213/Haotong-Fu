@@ -10,10 +10,7 @@
 
 struct KeyError { };
 
-/**
-* A special kind of node for an AVL tree, which adds the height as a data member, plus
-* other additional helper functions. 
-*/
+// AVLNode class
 template <typename Key, typename Value>
 class AVLNode : public Node<Key, Value>
 {
@@ -38,15 +35,6 @@ protected:
 
 };
 
-/*
-  -------------------------------------------------
-  Begin implementations for the AVLNode class.
-  -------------------------------------------------
-*/
-
-/**
-* An explicit constructor to initialize the elements by calling the base class constructor.
-*/
 template<class Key, class Value>
 AVLNode<Key, Value>::AVLNode(const Key& key, const Value& value, AVLNode<Key, Value> *parent) :
     Node<Key, Value>(key, value, parent), height_(1)
@@ -54,69 +42,44 @@ AVLNode<Key, Value>::AVLNode(const Key& key, const Value& value, AVLNode<Key, Va
 
 }
 
-/**
-* A destructor which does nothing.
-*/
 template<class Key, class Value>
 AVLNode<Key, Value>::~AVLNode()
 {
 
 }
 
-/**
-* A getter for the height of a AVLNode.
-*/
 template<class Key, class Value>
 int AVLNode<Key, Value>::getHeight() const
 {
     return height_;
 }
 
-/**
-* A setter for the height of a AVLNode.
-*/
 template<class Key, class Value>
 void AVLNode<Key, Value>::setHeight(int height)
 {
     height_ = height;
 }
 
-/**
-* An overridden function for getting the parent since a static_cast is necessary to make sure
-* that our node is a AVLNode.
-*/
 template<class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getParent() const
 {
     return static_cast<AVLNode<Key, Value>*>(this->parent_);
 }
 
-/**
-* Overridden for the same reasons as above.
-*/
+
 template<class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getLeft() const
 {
     return static_cast<AVLNode<Key, Value>*>(this->left_);
 }
 
-/**
-* Overridden for the same reasons as above.
-*/
 template<class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getRight() const
 {
     return static_cast<AVLNode<Key, Value>*>(this->right_);
 }
 
-
-/*
-  -----------------------------------------------
-  End implementations for the AVLNode class.
-  -----------------------------------------------
-*/
-
-
+// AVLTree class
 template <class Key, class Value>
 class AVLTree : public BinarySearchTree<Key, Value>
 {
