@@ -9,3 +9,5 @@ These are the two projects I have worked on independently (I am not allowed to s
 
 2: Exam Scheduler
 ▪ Built an exam scheduling program in C++ utilizing AVL trees, backtracking, and recursion to efficiently assign students’ exams to timeslots, ensuring no conflicting schedules
+
+3: Customzed Chatgpt - Resume Refiner (Working in Progress)
