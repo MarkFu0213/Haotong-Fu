@@ -3,41 +3,32 @@ import gradio as gr
 import PyPDF2
 import docx
 from docx import Document
-from gradio import CSVLogger
 import os
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
 from docx import Document
 from docx.shared import Pt
 
 from docx.enum.text import WD_UNDERLINE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+  
 
-from docx.shared import RGBColor
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
-    
 
-# replace with chatgpt api
 openai.api_key = ""
 
 messages = []
 
-latest_resume_text = ""
 
-default_text_1 = "Hello, I will share a candidate's resume with you. Please provide a summary for me" 
+latest_resume_text = ""
+desired_position = ""
+default_text_1 = "请帮我总结我上传的简历" 
                 
-default_text_2 = "Hello, I will share a candidate's resume with you. Please desensitize the resume by removing or redacting any personal contact information like the phone number, home address, and email address. Also remove or mask any private details like ID numbers, exact dates for education and work history, and compensation details. Double check that no other private information is included. The goal is to remove personally identifying details while still allowing this candidate's professional qualifications to be visible to potential employers."
+default_text_2 = "请帮我把我上传的简历进行脱敏处理。"
 
 default_text_3 = "请帮我阅读候选人简历并总结出以下几个部分。第一个板块是“个人信息”，请总结出此后选人的姓名，性别，工作经验（多少年），最高学历，毕业院校，专业，和毕业时间。第二个部分是此候选人的本人评价，放进一个自然段里。第三个部分是具体得工作经历。第四个部分是做过的项目经验。请根据你对于这位候选人简历的最细致的阅读排出以上几个部分。每个部分由自己的标题：五个标题为 个人信息，本人评价，工作经历，和项目经验。请把每一个小项写得细致一点，并且用数字排序！"
 
+empty_text = ""
+
+def set_empty_text():
+    return empty_text
 
 def set_text_1():
     return default_text_1
@@ -53,6 +44,7 @@ def set_text_3():
 #     for page in reader.pages:
 #         text += page.extract_text()
 #     return text
+
 
 
 #write a function that extract text from a pdf that could contain multiple pages
@@ -96,9 +88,6 @@ def clear_inputs():
     messages = []
     return "", None
 
-def log_conversation(input, reply):
-    with open("log.csv", "a") as log_file:
-        log_file.write(f"user_input: {input},\n\n Chatgpt: {reply}\n\n")
 
 
 import re
@@ -153,6 +142,7 @@ def generate_resume_document(latest_resume_text):
 
     # Function to add a section to the document with bullet points
     def add_section_to_doc(section, content):
+        global name
         if section and content:
             sec = doc.add_heading(section, level=0)
             for run in sec.runs:
@@ -180,6 +170,25 @@ def generate_resume_document(latest_resume_text):
                         # Update the last index processed
                         last_index = start_index + len(keyword)
 
+                    if keyword == "姓名":
+                        name_start_index = last_index
+                        try:
+                            # Try to find the start index of the next keyword "性别"
+                            name_end_index = combined_content.index("性别", name_start_index)
+                            # Store the content into name variable
+                            name = combined_content[name_start_index:name_end_index]
+                            # Remove any non-Chinese characters
+                            name = re.sub(r'[^\u4e00-\u9fff]', '', name)
+                        except ValueError:
+                            # Handle the case where "性别" is not found
+                            name = "需手动填写"
+
+                        
+                        
+
+
+                        
+
                 # Add any remaining text after the last keyword
                 p.add_run(combined_content[last_index:])
                 
@@ -198,6 +207,7 @@ def generate_resume_document(latest_resume_text):
                     #         run.font.size = Pt(14)
 
                     # else:
+                   
                     doc.add_paragraph(line)
                     
             
@@ -223,26 +233,39 @@ def generate_resume_document(latest_resume_text):
     # Add the last section to the document
     add_section_to_doc(current_section, current_content)
     
-
-
-
     # Save the document
-    word_filename = "generated_resume.docx"
+    word_filename = "博网科技-" + name + "-" + desired_position + ".docx"
     doc.save(word_filename)
     return word_filename
 
 
 
 
+def log_conversation(input, reply):
+    with open("log.csv", "a") as log_file:
+        log_file.write(f"user_input: {input},\n\n Chatgpt: {reply}\n\n")
+
+
 
 def CustomChatGPT(user_input, uploaded_file):
-    global messages, latest_resume_text  # Declare latest_resume_text as global if it's used globally
-
+    global messages, latest_resume_text, desired_position, name  # Declare latest_resume_text as global if it's used globally
+    resume_text = ""
     resume_text = handle_file_upload(uploaded_file)
     print("Resume text from the file:", resume_text)
 
     if resume_text:
         messages.append({"role": "system", "content": resume_text})
+        # if the resume text contains "期望职位", extract the desired position and store it in desired_position
+        if "期望职位" in resume_text:
+            match = re.search(r'期望职位：(.+?)\s', resume_text)
+            if match:
+                desired_position = match.group(1)
+                # Remove non-Chinese characters
+                desired_position = re.sub(r'[^\u4e00-\u9fff]', '', desired_position)
+            else:
+                desired_position = "需手动填写"
+                
+            
 
     messages.append({"role": "user", "content": user_input})
     response = openai.ChatCompletion.create(
@@ -264,8 +287,12 @@ def CustomChatGPT(user_input, uploaded_file):
     else:
         doc = Document()
         doc.add_paragraph(ChatGPT_reply)
-        word_filename = "generated_response.docx"
+        word_filename = "回复.docx"
         doc.save(word_filename)
+
+
+
+
         # reset the messages to start a new conversation
         messages = []
 
@@ -274,7 +301,33 @@ def CustomChatGPT(user_input, uploaded_file):
 
 
 def get_log_file():
-    return "log.csv"
+    log_content = read_log_file()
+    if log_content == "Log file is empty or doesn't exist.":
+        return None  # Or handle the empty log case as you prefer
+    # strip all leading/trailing whitespaces and newlines
+    log_content = log_content.strip()
+
+    # Create a new Word document
+    doc = Document()
+    doc.add_heading('对话记录', 0)
+
+    # Add log content to the Word document
+    for line in log_content.split('\n'):
+        doc.add_paragraph(line)
+
+    # Save the document
+    doc_path = "chat_log.docx"
+    doc.save(doc_path)
+
+    # Return the path to the saved document for Gradio to handle the download
+    return doc_path
+
+
+
+
+
+
+
 def read_log_file():
     if os.path.exists("log.csv"):
         with open("log.csv", "r") as file:
@@ -288,6 +341,16 @@ def clear_log_file():
         with open("log.csv", "w") as log_file:
             log_file.write("") 
         return "Log cleared"
+    
+
+def handle_btn1_click(file_input):
+    return CustomChatGPT(default_text_1, file_input)
+
+def handle_btn2_click(file_input):
+    return CustomChatGPT(default_text_2, file_input)
+
+def handle_btn3_click(file_input):
+    return CustomChatGPT(default_text_3, file_input)
 
 def main():
     custom_css = """
@@ -310,52 +373,58 @@ def main():
     """
 
     with gr.Blocks(css=custom_css) as demo:
-        gr.Markdown("# Resume Analysis Tool", elem_classes=["centered-title"])
+        gr.Markdown("# 简历分析系统", elem_classes=["centered-title"])
 
         with gr.Row():
             with gr.Column():
+                # Inputs
                 text_input = gr.Textbox()
                 file_input = gr.File(file_count="multiple", label="Upload Resume")
-
                 with gr.Row():
-                    btn1 = gr.Button("Summary", elem_classes=["custom-button"])
-                    btn2 = gr.Button("Desensitization", elem_classes=["custom-button"])
+                # Buttons for resume operations
+                    btn1 = gr.Button("总结简历", elem_classes=["custom-button"])
+                    btn2 = gr.Button("脱敏处理", elem_classes=["custom-button"])
                     btn3 = gr.Button("简历生成", elem_classes=["custom-button"])
-
-
-                    btn1.click(fn=set_text_1, inputs=[], outputs=text_input)
-                    btn2.click(fn=set_text_2, inputs=[], outputs=text_input)
-                    btn3.click(fn=set_text_3, inputs=[], outputs=text_input)
-                    
-
                 with gr.Row():
-                    submit_btn = gr.Button("Submit", elem_classes=["custom-button"])
-                    clear_btn = gr.Button("Clear", elem_classes=["custom-button"])
-                    clear_btn.click(fn=clear_inputs, inputs=[], outputs=[])
+
+                # Other buttons
+                    submit_btn = gr.Button("提交", elem_classes=["custom-button"])
+                    clear_btn = gr.Button("清除", elem_classes=["custom-button"])
+                    clear_btn.click(fn=set_empty_text, inputs=[], outputs=[text_input])
 
             with gr.Column():
-                with gr.Row():
-                    output_text = gr.Textbox(label="ChatGPT Reply", interactive=True, lines=1)
-                with gr.Row():
-                    output_word = gr.File(label="Download Word File")
-                    # output_pdf = gr.File(label="Download PDF File")
+                # Outputs
+                output_text = gr.Textbox(label="ChatGPT回复", interactive=True, lines=1)
+                output_word = gr.File(label="下载word文件")
 
-                    submit_btn.click(fn=CustomChatGPT, inputs=[text_input, file_input], outputs=[output_text, output_word])
+                # Click events for resume operation buttons
+                btn1.click(fn=handle_btn1_click, inputs=[file_input], outputs=[output_text, output_word])
+                btn2.click(fn=handle_btn2_click, inputs=[file_input], outputs=[output_text, output_word])
+                btn3.click(fn=handle_btn3_click, inputs=[file_input], outputs=[output_text, output_word])
 
-                with gr.Row():
-                    log_text = gr.Textbox(label="Log Content", interactive=True, lines=1)
+                # Click event for submitting the chat
+                submit_btn.click(fn=CustomChatGPT, inputs=[text_input, file_input], outputs=[output_text, output_word])
 
-                with gr.Row():
-                    view_log_button = gr.Button("View Log", elem_classes=["custom-button"])
-                    download_log_button = gr.Button("Download Log File", elem_classes=["custom-button"])
-                    clear_log_button = gr.Button("Clear Log File", elem_classes=["custom-button"])
-
-                    view_log_button.click(fn=read_log_file, inputs=[], outputs=log_text)
-                    download_log_button.click(fn=get_log_file, inputs=[], outputs=[])
-                    clear_log_button.click(fn=clear_log_file, inputs=[], outputs=[])
+                # Log-related components and buttons
+                log_text = gr.Textbox(label="Log Content", interactive=True, lines=1)
+                output_docx = gr.File(label="下载log文件")  # For downloading the log file
+      
 
                 
-    demo.launch(share=True)
+                with gr.Row():
+                    view_log_button = gr.Button("对话记录", elem_classes=["custom-button"])
+                    download_log_button = gr.Button("下载对话记录", elem_classes=["custom-button"])
+                    clear_log_button = gr.Button("清除对话记录", elem_classes=["custom-button"])
+                    
+                    view_log_button.click(fn=read_log_file, inputs=[], outputs=log_text)
+                    
+                    download_log_button.click(fn=get_log_file, inputs=[], outputs=[output_docx])
+                    clear_log_button.click(fn=clear_log_file, inputs=[], outputs=[])
+
+
+
+    demo.launch()
+
 
 
 if __name__ == "__main__":
