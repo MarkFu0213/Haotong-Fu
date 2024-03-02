@@ -19,12 +19,10 @@ messages = []
 
 latest_resume_text = ""
 desired_position = ""
-
-# summarizing resume content
 default_text_1 = "请帮我总结我上传的简历" 
-# desensitization
+                
 default_text_2 = "请帮我把我上传的简历进行脱敏处理。"
-# output specific resume format
+
 default_text_3 = "请帮我阅读候选人简历并总结出以下几个部分。第一个板块是“个人信息”，请总结出此后选人的姓名，性别，工作经验（多少年），最高学历，毕业院校，专业，和毕业时间。第二个部分是此候选人的本人评价，放进一个自然段里。第三个部分是具体得工作经历。第四个部分是做过的项目经验。请根据你对于这位候选人简历的最细致的阅读排出以上几个部分。每个部分由自己的标题：五个标题为 个人信息，本人评价，工作经历，和项目经验。请把每一个小项写得细致一点，并且用数字排序！"
 
 empty_text = ""
@@ -209,7 +207,10 @@ def generate_resume_document(latest_resume_text):
                     #         run.font.size = Pt(14)
 
                     # else:
-                   
+                    #remove any non-Chinese characters except for some commmon punctuation marks, numbers, and spaces
+                    line = re.sub(r'[^\u4e00-\u9fff\w\s\-\,\:\;\.\d]', '', line)
+                    
+                    
                     doc.add_paragraph(line)
                     
             
