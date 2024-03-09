@@ -9,7 +9,8 @@ Welcome to my github repository!
 2: Exam Scheduler
 ▪ Built an exam scheduling program in C++ utilizing AVL trees to efficiently assign students’ exams to timeslots, ensuring no conflicting schedules
 
-3: Customzed Chatgpt - Resume Refiner for _Bytecenture Technology_ 
-▪ Developed an internal web application for summarizing and standardizing Chinese resumes into a specific format
+3: Customzed Chatgpt Resume Refiner 
+▪ Developed an internal web application for summarizing and standardizing Chinese resumes into a specific format for _Bytecenture Technology_
 
-4: 
+4: Stats Visualizer App
+▪ Created a customized platform for visualizing player statistics for the USC women's soccer team
